@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+
+
 # Your code to obtain the binary image and connected components
 # map_path = r'C:\Users\Asus\Desktop\real simulatrion\ue/test_top_binary.png'
 name ='environment_2'
