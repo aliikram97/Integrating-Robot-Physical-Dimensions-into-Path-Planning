@@ -113,145 +113,85 @@ def near_objects_identifier(map,output):
                 print(f"Objects {obj1_label} and {obj2_label} are near")
                 near_objects.append((obj1_label, obj2_label))
     return near_objects
-def useful_boundary_points_identifier(thresh,boundary_1,boundary_2):
-    def value_mapper(value):
-        if value>0:
-            return 255
-        else:
-            return 0
-    def slope_(x1, y1, x2, y2):
-        if x1!=x2:
-            s = (y2 - y1) / (x2 - x1)
-        else:
-            s=0
-        return s
-    def line_equation(coord1, coord2, step):
-        points = []
-        x1, y1 = coord1
-        x2, y2 = coord2
-        slope = slope_(x1, y1, x2, y2)
-        intercept = y1 - slope * x1
-        max_x = max(x1, x2)
-        min_x = min(x1, x2)
-        x = min_x
-        max_y = max(y1, y2)
-        min_y = min(y1, y2)
-        y = min_y
 
-        if x1 == x2:
-            while (y < max_y):
-                points.append((x, abs(y)))
-                y += step
-        elif y1 == y2:
-            while (x < max_x):
-                points.append((x, abs(y)))
-                x += step
-        else:
-            while (x < max_x):
-                y = slope * x + intercept
-                if abs(y) <= max_y:
-                    points.append((x, abs(y)))
-                x += step
-        if points == []:
-            print('debug')
-        return points
-    useful_point_pairs = []
-    outer_itterator = 0
-    inner_itterator = 0
-    length_coords1 = len(boundary_1)
-    length_coords2 = len(boundary_2)
-    if length_coords1 > length_coords2:
-        outer_limit = length_coords1
-        inner_limit = length_coords2
-        bigger_boundary = boundary_1
-        smaller_boundary = boundary_2
-    elif length_coords2 > length_coords1:
-        outer_limit = length_coords2
-        inner_limit = length_coords1
-        bigger_boundary = boundary_2
-        smaller_boundary = boundary_1
+def value_mapper(value):
+    return 255 if value > 0 else 0
+
+def slope_(x1, y1, x2, y2):
+    return (y2 - y1) / (x2 - x1) if x1 != x2 else 0
+
+def line_equation(coord1, coord2, step, thresh):
+    points = []
+    x1, y1 = coord1
+    x2, y2 = coord2
+    slope = slope_(x1, y1, x2, y2)
+    intercept = y1 - slope * x1
+    max_x, min_x = max(x1, x2), min(x1, x2)
+    max_y, min_y = max(y1, y2), min(y1, y2)
+    x, y = min_x, min_y
+
+    if x1 == x2:
+        while y < max_y:
+            points.append((x, abs(y)))
+            y += step
+    elif y1 == y2:
+        while x < max_x:
+            points.append((x, abs(y)))
+            x += step
     else:
-        outer_limit = length_coords1
-        inner_limit = length_coords2
-        bigger_boundary = boundary_1
-        smaller_boundary = boundary_2
-    while outer_itterator <outer_limit:
-        inner_itterator=0
-        point1 = bigger_boundary[outer_itterator]
-        while inner_itterator < inner_limit:
-            point2 = smaller_boundary[inner_itterator]
-            points_on_line = line_equation(point1,point2,2)
+        while x < max_x:
+            y = slope * x + intercept
+            if abs(y) <= max_y:
+                points.append((x, abs(y)))
+            x += step
+    if not points:
+        print('debug')
+    return points
+
+# Your other functions remain the same...
+
+# Optimized functions:
+
+def useful_boundary_points_identifier(thresh, boundary_1, boundary_2):
+    useful_point_pairs = []
+    lengths = [len(boundary_1), len(boundary_2)]
+    bigger_boundary, smaller_boundary = (boundary_1, boundary_2) if lengths[0] > lengths[1] else (boundary_2, boundary_1)
+
+    for point1 in bigger_boundary[::3]:
+        for point2 in smaller_boundary[::3]:
+            points_on_line = line_equation(point1, point2, 1, thresh)
             non_zero = False
             for point in points_on_line:
-                x,y = point
-                x = round(x)
-                y=round(y)
-                metric_value = thresh[int(y)][int(x)]
-                metric_value = value_mapper(metric_value)
-                # print(metric_value)
+                x, y = map(round, point)
+                metric_value = value_mapper(thresh[int(y)][int(x)])
                 if metric_value == 255:
-                    # print(metric_value)
                     non_zero = True
                     break
             if not non_zero:
-                # print(point1,point2)
-                useful_point_pairs.append((point1,point2))
-            inner_itterator+=3
-        outer_itterator+=3
+                useful_point_pairs.append((point1, point2))
     return useful_point_pairs
 
 def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels):
-    def cordinates_maker(contours):
-        pixel_values = []
-        for full in contours:
-            for point in full:
-                x = point[0][0]
-                y = point[0][1]
-                pixel_values.append([x, y])
-        return pixel_values
-
-    iterator_pair = 0
-    while iterator_pair < len(near_pair):
-        pair = near_pair[iterator_pair]
-        obj1, obj2 = pair
+    for obj1, obj2 in near_pair:
         obstacle_1 = (labels == obj1).astype("uint8") * 255
         obstacle_2 = (labels == obj2).astype("uint8") * 255
-        binary_map_temp = obstacle_1 + obstacle_2
-        # cv2.imshow('mixed map', binary_map_temp)
-        # cv2.waitKey(0)
+
         ret1, thresh_obj1 = cv2.threshold(obstacle_1, 127, 255, 0)
         contours_obj1 = cv2.findContours(thresh_obj1, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-        coordinates_1 = cordinates_maker(contours_obj1)
+        coordinates_1 = [[point[0][0], point[0][1]] for contour in contours_obj1 for point in contour]
 
-        ret1, thresh_obj2 = cv2.threshold(obstacle_2, 127, 255, 0)
+        ret2, thresh_obj2 = cv2.threshold(obstacle_2, 127, 255, 0)
         contours_obj2 = cv2.findContours(thresh_obj2, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-        coordinates_2 = cordinates_maker(contours_obj2)
-        start = time.time()
+        coordinates_2 = [[point[0][0], point[0][1]] for contour in contours_obj2 for point in contour]
+
         useful_points = useful_boundary_points_identifier(thresh, coordinates_1, coordinates_2)
-        execution_useful = time.time() - start
-        print(f'the useful points execution time is {execution_useful}')
-
-        iterator_useful = 0
-        while iterator_useful < len(useful_points):
-            points = useful_points[iterator_useful]
-            point1, point2 = points
-            point1 = np.array(point1)
-            point2 = np.array(point2)
+        for itterator in range(0, len(useful_points), 10):
+            point1, point2 = map(np.array, useful_points[itterator])
             passage_width = np.linalg.norm(point2 - point1)
-            thresh_cpy = thresh.copy()
-            x1,y1 = point1
-            x2,y2= point2
-            cv2.circle(thresh_cpy, (int(x1),int(y1)), 5, (127, 127, 0), 2)
-            cv2.circle(thresh_cpy, (int(x2),int(y2)), 5, (127, 127, 0), 2)
             if robot_width > passage_width:
-                # cv2.line(thresh, point1, point2, (127, 127, 127), thickness=8, lineType=8)
-                cv2.line(thresh, point1, point2, (255, 255, 255), thickness=5, lineType=8)
-            iterator_useful += 1
-
-        iterator_pair += 1
-    cv2.imshow('test', thresh_cpy)
-    cv2.waitKey(0)
+                cv2.line(thresh, tuple(point1), tuple(point2), (255, 255, 255), thickness=8, lineType=8)
     return thresh
+
 
 def dimension_integrator(map):
     start_1 = time.time()
@@ -261,7 +201,7 @@ def dimension_integrator(map):
     exe_1 = time.time()-start_1
     print(f'pairs identified')
     start_2 = time.time()
-    processed_result = check_passages_by_near_pairs(25, thresh, near_pair, labels)
+    processed_result = check_passages_by_near_pairs(20, thresh, near_pair, labels)
     print(f'result generation with useful points')
     processed_binary_map = ~processed_result
     exe_2 = time.time() - start_2
@@ -272,7 +212,7 @@ def main():
     name = 'map_5'
     map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
     map = cv2.imread(map_path)
-    map = cv2.resize(map, (250,250))
+    map = cv2.resize(map, (480,360))
 
     start = time.time()
     processed_binary_map = dimension_integrator(map)

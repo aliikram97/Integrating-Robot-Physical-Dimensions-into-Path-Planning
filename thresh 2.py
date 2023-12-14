@@ -45,6 +45,7 @@ horizontal_distance = np.linalg.norm(np.array(top_hor) - np.array(bottom_hor))
 
 threshold_distance = diagonal_distance *0.4
 # Loop through each unique object label
+near_objects = []
 for obj1_label in np.unique(labels):
     if obj1_label == 0:  # Skip the background label (if labeled as 0)
         continue
@@ -75,8 +76,8 @@ for obj1_label in np.unique(labels):
         # print(f'the distance is {dist_between_objects}')
         # print(
         #     f'the diag is {diagonal_distance * 0.4}, the vertical dist is {vertical_distance * 0.4}, horizontal distance is {horizontal_distance * 0.4}')
-        cv2.imshow('frame', binary_map_temp)
-        cv2.waitKey(0)
+        # cv2.imshow('frame', binary_map_temp)
+        # cv2.waitKey(0)
         # distance_in_horizontal = abs((centroid_obj1[0]-centroid_obj2[0]))
         # distance_in_vertical = abs((centroid_obj1[1]-centroid_obj2[1]))
         # dist_between_objects = max(distance_in_horizontal,distance_in_vertical)
@@ -90,4 +91,6 @@ for obj1_label in np.unique(labels):
         # Compare distance with threshold
         if dist_between_objects < threshold_distance:
             print(f"Objects {obj1_label} and {obj2_label} are near")
+            near_objects.append((obj1_label,obj2_label))
+print(near_objects)
 
