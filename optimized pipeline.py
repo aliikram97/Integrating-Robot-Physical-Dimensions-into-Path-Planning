@@ -232,13 +232,13 @@ def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels):
         print(f'the useful points execution time is {execution_useful}')
 
         iterator_useful = 0
+        thresh_cpy = thresh.copy()
         while iterator_useful < len(useful_points):
             points = useful_points[iterator_useful]
             point1, point2 = points
             point1 = np.array(point1)
             point2 = np.array(point2)
             passage_width = np.linalg.norm(point2 - point1)
-            thresh_cpy = thresh.copy()
             x1,y1 = point1
             x2,y2= point2
             cv2.circle(thresh_cpy, (int(x1),int(y1)), 5, (127, 127, 0), 2)
