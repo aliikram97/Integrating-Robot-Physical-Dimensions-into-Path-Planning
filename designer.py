@@ -1,66 +1,45 @@
 import cv2
 
-name = 'map_5'
-map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
-map = cv2.imread(map_path)
-map = ~map
-
-imgray = cv2.cvtColor(map, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-
-
-def slope_(x1, y1, x2, y2):
-    if x1 != x2:
-        s = (y2 - y1) / (x2 - x1)
-    else:
-        s = 0
-    return s
-
-
-def line_equation(coord1, coord2, step):
+def get_line(x1, y1, x2, y2):
+    """Bresenham's line algorithm to get all points between two coordinates"""
     points = []
-    x1, y1 = coord1
-    x2, y2 = coord2
-    slope = slope_(x1, y1, x2, y2)
-    intercept = y1 - slope * x1
-    max_x = max(x1, x2)
-    min_x = min(x1, x2)
-    x = min_x
-    max_y = max(y1, y2)
-    min_y = min(y1, y2)
-    y = min_y
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    sx = 1 if x1 < x2 else -1
+    sy = 1 if y1 < y2 else -1
+    err = dx - dy
 
-    if x1 == x2:
-        while (y < max_y):
-            points.append((x, abs(y)))
-            y += step
-    elif y1 == y2:
-        while (x < max_x):
-            points.append((x, abs(y)))
-            x += step
-    else:
-        while (x < max_x):
-            y = slope * x + intercept
-            if abs(y) <= max_y:
-                points.append((x, abs(y)))
-            x += step
-    if points == []:
-        print('debug')
+    while x1 != x2 or y1 != y2:
+        points.append((x1, y1))
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x1 += sx
+        if e2 < dx:
+            err += dx
+            y1 += sy
+
+    points.append((x2, y2))
     return points
-point1 = (368, 99)
-point2 = (238, 128)
-points = line_equation(point1,point2,1)
-non_zero = False
-for point in points:
-    x, y = point
-    x = round(x)
-    y = round(y)
-    metric_value = thresh[int(x)][int(y)]
-    if metric_value==255:
-        print(metric_value)
-        non_zero=True
-        break
-if not non_zero:
-    cv2.line(thresh, point1, point2, (127, 127, 127), thickness=2, lineType=8)
-cv2.imshow('resu;t',thresh)
-cv2.waitKey(0)
+
+def check_points(image, points):
+    """Check if all points in the image are in free space"""
+    for x, y in points:
+        if image[y, x] != 0:
+            return False
+    return True
+
+# Replace 'your_image.png' with the path to your binary image file
+image_path = 'your_image.png'
+image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+if image is not None:
+    x1, y1 = 10, 20  # Replace with your first pixel coordinates
+    x2, y2 = 100, 150  # Replace with your second pixel coordinates
+
+    line_points = get_line(x1, y1, x2, y2)
+    result = check_points(image, line_points)
+
+    print(f"Are all points in the line free space? {result}")
+else:
+    print("Image not found!")
