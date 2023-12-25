@@ -230,25 +230,25 @@ class PRM:
         pos['goal'] = (self.samples[-1][1], self.samples[-1][0])
         
         # draw constructed graph
-        nx.draw(self.graph, pos, node_size=3, node_color='y', edge_color='y' ,ax=ax)
+        # nx.draw(self.graph, pos, node_size=3, node_color='lightgreen', edge_color='lightgreen' ,ax=ax)
 
         # If found a path
         if self.path:
             # add temporary start and goal edge to the path
             final_path_edge = list(zip(self.path[:-1], self.path[1:]))
-            nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=self.path, node_size=8, node_color='b')
-            nx.draw_networkx_edges(self.graph, pos=pos, edgelist=final_path_edge, width=5, edge_color='b')
+            nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=self.path, node_size=30, node_color='b')
+            nx.draw_networkx_edges(self.graph, pos=pos, edgelist=final_path_edge, width=10, edge_color='b')
 
         # draw start and goal
-        nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=['start'], node_size=30,  node_color='g')
-        nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=['goal'], node_size=30,  node_color='r')
+        nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=['start'], node_size=200,  node_color='limegreen')
+        nx.draw_networkx_nodes(self.graph, pos=pos, nodelist=['goal'], node_size=200,  node_color='red')
 
         # show image
         plt.axis('on')
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         name = 'test_top_binary-pro-PRMB'
-        plt.savefig(str(r'C:\Users\Asus\Desktop\real simulatrion\ue/'+name+'.png'))
-        # plt.show()
+        # plt.savefig(str(r'C:\Users\Asus\Desktop\real simulatrion\ue/'+name+'.png'))
+        plt.show()
 
 
     def sample(self, n_pts=1000, sampling_method="uniform"):

@@ -210,9 +210,9 @@ class RRT:
         ax.imshow(img)
 
         # Draw Trees or Sample points
-        for node in self.vertices[1:-1]:
-            plt.plot(node.col, node.row, markersize=3, marker='o', color='y')
-            plt.plot([node.col, node.parent.col], [node.row, node.parent.row], color='y')
+        # for node in self.vertices[1:-1]:
+            # plt.plot(node.col, node.row, markersize=3, marker='o', color='y')
+            # plt.plot([node.col, node.parent.col], [node.row, node.parent.row], color='y')
         
         # Draw Final Path if found
         if self.found:
@@ -220,16 +220,16 @@ class RRT:
             while cur.col != self.start.col and cur.row != self.start.row:
                 plt.plot([cur.col, cur.parent.col], [cur.row, cur.parent.row], color='b')
                 cur = cur.parent
-                plt.plot(cur.col, cur.row, markersize=8, marker='o', color='b')
+                plt.plot(cur.col, cur.row, markersize=10, marker='o', color='b')
 
         # Draw start and goal
-        plt.plot(self.start.col, self.start.row, markersize=10, marker='o', color='g')
-        plt.plot(self.goal.col, self.goal.row, markersize=10, marker='o', color='r')
+        plt.plot(self.start.col, self.start.row, markersize=20, marker='o', color='limegreen')
+        plt.plot(self.goal.col, self.goal.row, markersize=20, marker='o', color='r')
 
         # show image
         name = 'test_top_binary-pro-RRT'
-        plt.savefig(str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png'))
-        # plt.show()
+        # plt.savefig(str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png'))
+        plt.show()
 
     def direction(self,point1,point2):                          
         

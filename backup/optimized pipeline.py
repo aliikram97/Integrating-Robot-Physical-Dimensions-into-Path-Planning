@@ -333,15 +333,7 @@ def detect_and_label_0bstacles(map):
 
 
 def useful_objects(theshold_image,output):
-    def pair_exists(pair_list, target_pair):
-        for pair in pair_list:
-            if (pair[0] == target_pair[0] and pair[1] == target_pair[1]) or (
-                    pair[0] == target_pair[1] and pair[1] == target_pair[0]):
-                return True
-        return False
-
     useful_object_pair = []
-    checked_pair = []
     (numLabels, labels, stats, centroids) = output
     for obj1_label in np.unique(labels):
         if obj1_label == 0:  # Skip the background label (if labeled as 0)
@@ -358,57 +350,47 @@ def useful_objects(theshold_image,output):
 
             # Create a binary mask for obj2_label
             obstacle_2 = (labels == obj2_label).astype("uint8") * 255
-            if len(useful_object_pair)>1:
-                pair_checked = pair_exists(checked_pair,(obj1_label,obj2_label))
-                print(pair_checked)
-            else:
-                pair_checked=False
-            if pair_checked and len(useful_object_pair)>1:
-                continue
-            else:
+            centroid_obj2 = centroids[obj2_label]
 
-                checked_pair.append((obj1_label,obj2_label))
-                centroid_obj2 = centroids[obj2_label]
+            ret1, thresh_obj1 = cv2.threshold(obstacle_1, 127, 255, 0)
+            contours_obj1 = cv2.findContours(thresh_obj1, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
+            coordinates_1 = cordinates_maker(contours_obj1)
 
-                ret1, thresh_obj1 = cv2.threshold(obstacle_1, 127, 255, 0)
-                contours_obj1 = cv2.findContours(thresh_obj1, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-                coordinates_1 = cordinates_maker(contours_obj1)
+            ret1, thresh_obj2 = cv2.threshold(obstacle_2, 127, 255, 0)
+            contours_obj2 = cv2.findContours(thresh_obj2, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
+            coordinates_2 = cordinates_maker(contours_obj2)
 
-                ret1, thresh_obj2 = cv2.threshold(obstacle_2, 127, 255, 0)
-                contours_obj2 = cv2.findContours(thresh_obj2, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-                coordinates_2 = cordinates_maker(contours_obj2)
+            # Combine binary masks
+            binary_map_temp = obstacle_1 + obstacle_2
+            # cv2.circle(map, (int(centroid_obj1[0]), int(centroid_obj1[1])), 5, (127, 255, 0), -1)
+            cent_1 = (int(centroid_obj1[0]), int(centroid_obj1[1]))
+            cent_2 = (int(centroid_obj2[0]), int(centroid_obj2[1]))
 
-                # Combine binary masks
-                binary_map_temp = obstacle_1 + obstacle_2
-                # cv2.circle(map, (int(centroid_obj1[0]), int(centroid_obj1[1])), 5, (127, 255, 0), -1)
-                cent_1 = (int(centroid_obj1[0]), int(centroid_obj1[1]))
-                cent_2 = (int(centroid_obj2[0]), int(centroid_obj2[1]))
+            points_on_line_object_1 = [coord for coord in coordinates_1 if find_points_on_lines(coord, cent_1)]
+            points_on_line_object_2 = [coord for coord in coordinates_2 if find_points_on_lines(coord, cent_2)]
+            clear_line = []
+            # map_cpy = map.copy()
 
-                points_on_line_object_1 = [coord for coord in coordinates_1 if find_points_on_lines(coord, cent_1)]
-                points_on_line_object_2 = [coord for coord in coordinates_2 if find_points_on_lines(coord, cent_2)]
-                clear_line = []
-                # map_cpy = map.copy()
-
-                relavent_point_1, relavent_point_2 = relevant_points_extractor(binary_map_temp, points_on_line_object_1,
-                                                                               points_on_line_object_2,
-                                                                               coordinates_1, coordinates_2)
-                break_ = False
-                for i in enumerate(relavent_point_1):
-                    for j in enumerate(relavent_point_2):
-                        num_1, point_1 = i
-                        num_2, point_2 = j
-                        x1, y1 = point_1
-                        x2, y2 = point_2
-                        point_on_line = get_line(x1, y1, x2, y2)
-                        status = check_points(theshold_image, point_on_line)
-                        if status == True:
-                            break_ = True
-                            useful_object_pair.append((obj1_label, obj2_label))
-                            break
-                    if break_:
+            relavent_point_1, relavent_point_2 = relevant_points_extractor(binary_map_temp, points_on_line_object_1,
+                                                                           points_on_line_object_2,
+                                                                           coordinates_1, coordinates_2)
+            break_ = False
+            for i in enumerate(relavent_point_1):
+                for j in enumerate(relavent_point_2):
+                    num_1, point_1 = i
+                    num_2, point_2 = j
+                    x1, y1 = point_1
+                    x2, y2 = point_2
+                    point_on_line = get_line(x1, y1, x2, y2)
+                    status = check_points(theshold_image, point_on_line)
+                    if status == True:
+                        break_ = True
+                        useful_object_pair.append((obj1_label, obj2_label))
                         break
+                if break_:
+                    break
         return useful_object_pair
-def useful_boundary_points_identifier(thresh,boundary_1,boundary_2,robot_width,visualization):
+def useful_boundary_points_identifier(thresh,boundary_1,boundary_2):
     def value_mapper(value):
         if value>0:
             return 255
@@ -470,37 +452,32 @@ def useful_boundary_points_identifier(thresh,boundary_1,boundary_2,robot_width,v
         inner_limit = length_coords2
         bigger_boundary = boundary_1
         smaller_boundary = boundary_2
-    stop_code =False
     while outer_itterator <outer_limit:
         inner_itterator=0
         point1 = bigger_boundary[outer_itterator]
         while inner_itterator < inner_limit:
             point2 = smaller_boundary[inner_itterator]
-            # points_on_line = line_equation(point1,point2,2)
-            x1,y1 = point1
-            x2,y2 = point2
-            points_on_line = get_line(x1,y1,x2,y2)
-            # points_on_line = line_equation(point1,point2,2)
+            points_on_line = line_equation(point1,point2,2)
             non_zero = False
-            status = check_points(thresh,points_on_line)
-            if status:
-                point1 = np.array(point1)
-                point2 = np.array(point2)
-                passage_width = np.linalg.norm(point2 - point1)
-                if robot_width > passage_width:
-                    cv2.line(visualization, point1, point2, (0, 219, 0), thickness=8, lineType=8)
-                    cv2.line(thresh, point1, point2, (255, 255, 255), thickness=5, lineType=8)
-                    stop_code = True
+            for point in points_on_line:
+                x,y = point
+                x = round(x)
+                y=round(y)
+                metric_value = thresh[int(y)][int(x)]
+                metric_value = value_mapper(metric_value)
+                # print(metric_value)
+                if metric_value == 255:
+                    print(metric_value)
+                    non_zero = True
                     break
-            inner_itterator+=10
-        if stop_code:
-            break
-        else:
-            outer_itterator+=10
-    return thresh,visualization
+            if not non_zero:
+                # print(point1,point2)
+                useful_point_pairs.append((point1,point2))
+            inner_itterator+=3
+        outer_itterator+=3
+    return useful_point_pairs
 
-def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels,draw_map):
-    draw_result = draw_map.copy()
+def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels):
     def cordinates_maker(contours):
         pixel_values = []
         for full in contours:
@@ -527,17 +504,31 @@ def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels,draw_map
         contours_obj2 = cv2.findContours(thresh_obj2, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
         coordinates_2 = cordinates_maker(contours_obj2)
         start = time.time()
-        thresh,processed_visualization = useful_boundary_points_identifier(thresh, coordinates_1, coordinates_2,robot_width,draw_result)
+        useful_points = useful_boundary_points_identifier(thresh, coordinates_1, coordinates_2)
         execution_useful = time.time() - start
         print(f'the useful points execution time is {execution_useful}')
 
         iterator_useful = 0
         thresh_cpy = thresh.copy()
+        while iterator_useful < len(useful_points):
+            points = useful_points[iterator_useful]
+            point1, point2 = points
+            point1 = np.array(point1)
+            point2 = np.array(point2)
+            passage_width = np.linalg.norm(point2 - point1)
+            x1,y1 = point1
+            x2,y2= point2
+            # cv2.circle(thresh_cpy, (int(x1),int(y1)), 5, (127, 127, 0), 2)
+            # cv2.circle(thresh_cpy, (int(x2),int(y2)), 5, (127, 127, 0), 2)
+            if robot_width > passage_width:
+                # cv2.line(thresh, point1, point2, (127, 127, 127), thickness=8, lineType=8)
+                cv2.line(thresh, point1, point2, (255, 255, 255), thickness=5, lineType=8)
+            iterator_useful += 1
 
         iterator_pair += 1
     # cv2.imshow('test', thresh_cpy)
     # cv2.waitKey(0)
-    return thresh,processed_visualization
+    return thresh
 
 def dimension_integrator(map):
     start_1 = time.time()
@@ -547,30 +538,26 @@ def dimension_integrator(map):
     exe_1 = time.time()-start_1
     print(f'pairs identified')
     start_2 = time.time()
-    processed_result,draw_result = check_passages_by_near_pairs(10, thresh, near_pair, labels,map)
+    processed_result = check_passages_by_near_pairs(50, thresh, near_pair, labels)
     print(f'result generation with useful points')
     processed_binary_map = ~processed_result
     exe_2 = time.time() - start_2
 
     print(f'execution time for near pair and segmntation is {exe_1} time for rest is {exe_2}')
-    return processed_binary_map,draw_result
+    return processed_binary_map
 def main():
-    # name = 'map_5'
-    name = 'map_5'
-    # map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
-    map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
+    name = 'environment_2'
+    map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.png')
     map = cv2.imread(map_path)
     map = cv2.resize(map, (250,250))
 
     start = time.time()
-    processed_binary_map,result_visualization = dimension_integrator(map)
+    processed_binary_map = dimension_integrator(map)
     end = time.time() - start
     processed_binary_map = cv2.resize(processed_binary_map, (960,720))
-    result_visualization = cv2.resize(result_visualization, (960,720))
     print(end)
-    cv2.imshow('input', map)
+    cv2.imshow('final result', map)
     cv2.imshow('final result',processed_binary_map)
-    cv2.imshow('final result visualization',result_visualization)
     cv2.waitKey(0)
 
 

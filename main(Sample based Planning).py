@@ -43,6 +43,7 @@ if __name__ == "__main__":
     #path_to_orig = str(r'E:\Theis\concave_500/' + name + '.png')
     # path_to_orig = str(r'D:\Thesis\final results\selected-20231108T144248Z-001\selected\New folder/' + name + '.png')
     path_to_orig = str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png')
+    # path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
     print('the path is ',path_to_orig)
     map_array = load_map(path_to_orig, 0.3)
     #path_to_closed_path = str(r'E:\Theis\resutls_paper_custom_maps_new/' + name + '.bmp')
