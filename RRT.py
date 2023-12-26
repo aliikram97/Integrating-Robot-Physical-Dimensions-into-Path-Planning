@@ -7,7 +7,8 @@ import networkx as nx
 
 from random import randrange 
 from numpy import random 
-import math 
+import math
+from constant import constants
 from scipy import spatial
 
 
@@ -225,11 +226,9 @@ class RRT:
         # Draw start and goal
         plt.plot(self.start.col, self.start.row, markersize=20, marker='o', color='limegreen')
         plt.plot(self.goal.col, self.goal.row, markersize=20, marker='o', color='r')
-
         # show image
-        name = 'test_top_binary-pro-RRT'
-        # plt.savefig(str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png'))
-        plt.show()
+        plt.savefig(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+constants.name+'_'+constants.map_type+'.RRT.png'))
+        # plt.show()
 
     def direction(self,point1,point2):                          
         

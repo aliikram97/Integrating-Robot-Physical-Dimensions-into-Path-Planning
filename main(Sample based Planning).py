@@ -6,7 +6,7 @@ from RRT import RRT
 from PRM import PRM
 import cv2
 import time
-
+from constant import constants
 import matplotlib.pyplot as plt
 
 
@@ -34,16 +34,19 @@ def load_map(file_path, resolution_scale):
 
 if __name__ == "__main__":
     # Load the map
-    start = (77,116)
-    goal  = (74,37)
-    name = 'test_top_binary_processed'
+    # start = (96,89)
+    # goal  = (65,115)
+    # # name = 'test_top_binary_processed'
+    # name = 'Berlin_0_1024'
     # name = 'Sydney_2_256_500_'
-
+    start = constants.start
+    goal = constants.goal
 
     #path_to_orig = str(r'E:\Theis\concave_500/' + name + '.png')
     # path_to_orig = str(r'D:\Thesis\final results\selected-20231108T144248Z-001\selected\New folder/' + name + '.png')
-    path_to_orig = str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png')
-    # path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
+    # path_to_orig = str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png')
+    # path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + constants.name + '.png')
+    path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline\processed_input/' + constants.name + '.png')
     print('the path is ',path_to_orig)
     map_array = load_map(path_to_orig, 0.3)
     #path_to_closed_path = str(r'E:\Theis\resutls_paper_custom_maps_new/' + name + '.bmp')

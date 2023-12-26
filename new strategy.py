@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 import math
@@ -127,39 +129,79 @@ def check_points(image, points):
     return True
 
 
-def relevant_points_extractor(map, points_collection_1, points_collection_2, boundary_coordinates_1,
-                              boundary_coordinates_2):
-    relevant_points_1 = []
-    relevant_points_2 = []
+# def relevant_points_extractor(map, points_collection_1, points_collection_2, boundary_coordinates_1,
+#                               boundary_coordinates_2):
+#     relevant_points_1 = []
+#     relevant_points_2 = []
+#
+#     for point in points_collection_1:
+#         for point_2 in points_collection_2:
+#             candidate_point_1 = [coord for coord in boundary_coordinates_1 if on_line(coord, point_2, point)]
+#             candidate_point_2 = [coord for coord in boundary_coordinates_2 if on_line(coord, point, point_2)]
+#             if candidate_point_1 and candidate_point_2:
+#                 distance_matrix = np.zeros((len(candidate_point_1), len(candidate_point_2)))
+#                 for i, p1 in enumerate(candidate_point_1):
+#                     for j, p2 in enumerate(candidate_point_2):
+#                         p1=np.array(p1)
+#                         p2=np.array(p2)
+#                         distance_matrix[i][j] = np.linalg.norm(p2 - p1)
+#
+#                 # min_index = np.unravel_index(np.argmin(distance_matrix, axis=None), distance_matrix.shape)
+#                 min_index = np.unravel_index(np.argsort(distance_matrix, axis=None)[:5], distance_matrix.shape)
+#                 for index_pair in zip(*min_index):
+#                     relevant_points_1.append(candidate_point_1[index_pair[0]])
+#                     relevant_points_2.append(candidate_point_2[index_pair[1]])
+#                 # relevant_points_1.append(candidate_point_1[min_index[0]])
+#                 # relevant_points_2.append(candidate_point_2[min_index[1]])
+#
+#     for point_1, point_2 in zip(relevant_points_1, relevant_points_2):
+#         cv2.circle(map, (int(point_1[0]), int(point_1[1])), 8, (127, 127, 0), -1)
+#         cv2.circle(map, (int(point_2[0]), int(point_2[1])), 8, (127, 127, 0), -1)
+#
+#     # cv2.imshow('test', map)
+#     # cv2.waitKey(0)
+#
+#     return relevant_points_1, relevant_points_2
+# def relevant_points_extractor(map, points_collection_1, points_collection_2, boundary_coordinates_1,
+#                               boundary_coordinates_2):
+#     relevant_points_1 = []
+#     relevant_points_2 = []
+#
+#     for point in points_collection_1:
+#         for point_2 in points_collection_2:
+#             candidate_point_1 = [coord for coord in boundary_coordinates_1 if on_line(coord, point_2, point)]
+#             candidate_point_2 = [coord for coord in boundary_coordinates_2 if on_line(coord, point, point_2)]
+#             if candidate_point_1 and candidate_point_2:
+#                 distances = []
+#                 for p1 in candidate_point_1:
+#                     for p2 in candidate_point_2:
+#                         distances.append((p1, p2, np.linalg.norm(np.array(p1) - np.array(p2))))
+#
+#                 distances.sort(key=lambda x: x[2])  # Sort based on distance
+#                 for p1, p2, _ in distances:
+#                     relevant_points_1.append(p1)
+#                     relevant_points_2.append(p2)
+#                 break  # Exit inner loop after finding relevant points
+#             if relevant_points_1 and relevant_points_2:
+#                 break  # Exit outer loop after finding relevant points
+#
+#     return relevant_points_1, relevant_points_2
 
-    for point in points_collection_1:
-        for point_2 in points_collection_2:
-            candidate_point_1 = [coord for coord in boundary_coordinates_1 if on_line(coord, point_2, point)]
-            candidate_point_2 = [coord for coord in boundary_coordinates_2 if on_line(coord, point, point_2)]
-            if candidate_point_1 and candidate_point_2:
-                distance_matrix = np.zeros((len(candidate_point_1), len(candidate_point_2)))
-                for i, p1 in enumerate(candidate_point_1):
-                    for j, p2 in enumerate(candidate_point_2):
-                        p1=np.array(p1)
-                        p2=np.array(p2)
-                        distance_matrix[i][j] = np.linalg.norm(p2 - p1)
 
-                # min_index = np.unravel_index(np.argmin(distance_matrix, axis=None), distance_matrix.shape)
-                min_index = np.unravel_index(np.argsort(distance_matrix, axis=None)[:5], distance_matrix.shape)
-                for index_pair in zip(*min_index):
-                    relevant_points_1.append(candidate_point_1[index_pair[0]])
-                    relevant_points_2.append(candidate_point_2[index_pair[1]])
-                # relevant_points_1.append(candidate_point_1[min_index[0]])
-                # relevant_points_2.append(candidate_point_2[min_index[1]])
+from sklearn.neighbors import NearestNeighbors
+import numpy as np
 
-    for point_1, point_2 in zip(relevant_points_1, relevant_points_2):
-        cv2.circle(map, (int(point_1[0]), int(point_1[1])), 8, (127, 127, 0), -1)
-        cv2.circle(map, (int(point_2[0]), int(point_2[1])), 8, (127, 127, 0), -1)
+from sklearn.neighbors import BallTree
 
-    # cv2.imshow('test', map)
-    # cv2.waitKey(0)
+from sklearn.neighbors import BallTree
 
-    return relevant_points_1, relevant_points_2
+
+
+
+
+
+
+
 
 
 from collections import defaultdict
@@ -281,6 +323,104 @@ def points_towards_centroid(centroid, other_points):
     return closer_points
 
 
+
+def useful_objects(threshold_image,output):
+    def pair_exists(pair_set, target_pair):
+        return (target_pair[0], target_pair[1]) in pair_set or (target_pair[1], target_pair[0]) in pair_set
+
+    def find_nearest_points(b1, b2):
+        # Create nearest neighbor models using Ball Tree
+        nbrs_b1_to_b2 = BallTree(b2)
+        nbrs_b2_to_b1 = BallTree(b1)
+        # Find the nearest point in b2 for each point in b1
+        distances_b1_to_b2, indices_b1_to_b2 = nbrs_b1_to_b2.query(b1, k=1)
+        # Find the nearest point in b1 for each point in b2
+        distances_b2_to_b1, indices_b2_to_b1 = nbrs_b2_to_b1.query(b2, k=1)
+        # Extract single integer indices
+        indices_b1_to_b2 = indices_b1_to_b2.squeeze()
+        indices_b2_to_b1 = indices_b2_to_b1.squeeze()
+        # Collect unique nearest points from b2 for each point in b1
+        unique_indices_b1_to_b2 = set(indices_b1_to_b2)
+        nearest_points_b1_to_b2 = [b2[index] for index in unique_indices_b1_to_b2]
+        # Collect unique nearest points from b1 for each point in b2
+        unique_indices_b2_to_b1 = set(indices_b2_to_b1)
+        nearest_points_b2_to_b1 = [b1[index] for index in unique_indices_b2_to_b1]
+        return nearest_points_b1_to_b2, nearest_points_b2_to_b1
+    useful_object_pair = []
+    checked_pair = set()
+    (numLabels, labels, stats, centroids) = output
+
+    # Pre-calculate contours and coordinates outside the loop
+    all_contours = {}
+    all_coordinates = {}
+    unique_labels = np.unique(labels)
+
+    for obj_label in unique_labels[unique_labels != 0]:
+        obstacle = (labels == obj_label).astype("uint8") * 255
+        ret, thresh_obj = cv2.threshold(obstacle, 127, 255, 0)
+        contours = cv2.findContours(thresh_obj, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
+        start_1 = time.time()
+        all_contours[obj_label] = contours
+        all_coordinates[obj_label] = cordinates_maker(contours)
+        contour_execution = time.time()-start_1
+
+    for obj1_label in unique_labels[unique_labels != 0]:
+        obstacle_1 = (labels == obj1_label).astype("uint8") * 255
+        centroid_obj1 = centroids[obj1_label]
+
+        for obj2_label in unique_labels[(unique_labels != 0) & (unique_labels != obj1_label)]:
+            obstacle_2 = (labels == obj2_label).astype("uint8") * 255
+            start_2 =time.time()
+            pair_checked = pair_exists(checked_pair, (obj1_label, obj2_label))
+            pair_execution = time.time()-start_2
+
+            if pair_checked and len(useful_object_pair) > 1:
+                continue
+
+            checked_pair.add((obj1_label, obj2_label))
+            centroid_obj2 = centroids[obj2_label]
+
+            binary_map_temp = obstacle_1 + obstacle_2
+            cent_1 = (int(centroid_obj1[0]), int(centroid_obj1[1]))
+            cent_2 = (int(centroid_obj2[0]), int(centroid_obj2[1]))
+
+            coordinates_1 = all_coordinates[obj1_label]
+            coordinates_2 = all_coordinates[obj2_label]
+
+            start_3 = time.time()
+            points_on_line_object_1 = [coord for coord in coordinates_1 if find_points_on_lines(coord, cent_1)]
+            points_on_line_object_2 = [coord for coord in coordinates_2 if find_points_on_lines(coord, cent_2)]
+            point_on_line_execution = time.time()-start_3
+
+            start_4 = time.time()
+            # relavent_point_1, relavent_point_2 = relevant_points_extractor(binary_map_temp, points_on_line_object_1,
+            #                                                                points_on_line_object_2,
+            #                                                                coordinates_1, coordinates_2)
+            relavent_point_1,relavent_point_2 = find_nearest_points(coordinates_1,coordinates_2)
+            relevant_execution = time.time()-start_4
+            print(f'points on line: {point_on_line_execution}, relevant point filtering: {relevant_execution}')
+            break_ = False
+            start_5 = time.time()
+            for i, point_1 in enumerate(relavent_point_1):
+                for j, point_2 in enumerate(relavent_point_2):
+                    x1, y1 = point_1
+                    x2, y2 = point_2
+                    print(f'attempting to get points on line {point_1}{point_2}')
+                    point_on_line = get_line(x1, y1, x2, y2)
+                    print('done')
+                    print('getting status')
+                    status = check_points(threshold_image, point_on_line)
+                    print('done')
+                    if status:
+                        break_ = True
+                        useful_object_pair.append((obj1_label, obj2_label))
+                        break
+                if break_:
+                    break
+            relevant_freespace_execution = time.time()-start_5
+            print(f'status checking: {relevant_freespace_execution}')
+    return useful_object_pair
+
 # name = 'major_fail_case'
 name = 'environment_2'
 map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.png')
@@ -289,62 +429,10 @@ map = cv2.imread(map_path)
 output,theshold_image = detect_and_label_0bstacles(map)
 (numLabels, labels, stats, centroids) = output
 useful_object_pair = []
-def useful_objects(labels):
-    for obj1_label in np.unique(labels):
-        if obj1_label == 0:  # Skip the background label (if labeled as 0)
-            continue
-
-        # Create a binary mask for obj1_label
-        obstacle_1 = (labels == obj1_label).astype("uint8") * 255
-        centroid_obj1 = centroids[obj1_label]
-
-        # Loop through other labels to compare distances
-        for obj2_label in np.unique(labels):
-            if obj2_label == 0 or obj2_label == obj1_label:
-                continue
-
-            # Create a binary mask for obj2_label
-            obstacle_2 = (labels == obj2_label).astype("uint8") * 255
-            centroid_obj2 = centroids[obj2_label]
-
-            ret1, thresh_obj1 = cv2.threshold(obstacle_1, 127, 255, 0)
-            contours_obj1 = cv2.findContours(thresh_obj1, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-            coordinates_1 = cordinates_maker(contours_obj1)
-
-            ret1, thresh_obj2 = cv2.threshold(obstacle_2, 127, 255, 0)
-            contours_obj2 = cv2.findContours(thresh_obj2, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
-            coordinates_2 = cordinates_maker(contours_obj2)
-
-            # Combine binary masks
-            binary_map_temp = obstacle_1 + obstacle_2
-            # cv2.circle(map, (int(centroid_obj1[0]), int(centroid_obj1[1])), 5, (127, 255, 0), -1)
-            cent_1 = (int(centroid_obj1[0]), int(centroid_obj1[1]))
-            cent_2 = (int(centroid_obj2[0]), int(centroid_obj2[1]))
-
-            points_on_line_object_1 = [coord for coord in coordinates_1 if find_points_on_lines(coord, cent_1)]
-            points_on_line_object_2 = [coord for coord in coordinates_2 if find_points_on_lines(coord, cent_2)]
-            clear_line = []
-            map_cpy = map.copy()
-            relavent_point_1,relavent_point_2 = relevant_points_extractor(binary_map_temp, points_on_line_object_1, points_on_line_object_2,
-                                                         coordinates_1,coordinates_2)
-            break_=False
-            for i in enumerate(relavent_point_1):
-                for j in enumerate(relavent_point_2):
-                    num_1,point_1=i
-                    num_2,point_2 = j
-                    x1,y1=point_1
-                    x2,y2=point_2
-                    point_on_line = get_line(x1,y1,x2,y2)
-                    status = check_points(theshold_image,point_on_line)
-                    if status==True:
-                        break_ =True
-                        useful_object_pair.append((obj1_label,obj2_label))
-                        break
-                if break_:
-                    break
-    return useful_object_pair
-
-pair = useful_objects(labels)
+start = time.time()
+pair = useful_objects(threshold_image=theshold_image,output=output)
+execution_time = time.time()-start
+print(execution_time)
 print(pair)
 # cv2.imshow('binary temp',map)
 # cv2.waitKey(0)
