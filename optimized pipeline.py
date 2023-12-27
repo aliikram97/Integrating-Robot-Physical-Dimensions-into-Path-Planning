@@ -575,7 +575,7 @@ def dimension_integrator(map):
     return processed_binary_map,draw_result
 def main():
     # name = 'map_5'
-    name = 'Berlin_0_1024'
+    name = 'environment_5'
     # map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
     map_path = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
     map = cv2.imread(map_path)
