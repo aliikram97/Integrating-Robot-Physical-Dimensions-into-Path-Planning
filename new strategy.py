@@ -374,7 +374,7 @@ def useful_objects(threshold_image,output):
             pair_checked = pair_exists(checked_pair, (obj1_label, obj2_label))
             pair_execution = time.time()-start_2
 
-            if pair_checked and len(useful_object_pair) > 1:
+            if pair_checked and len(useful_object_pair) >=1:
                 continue
 
             checked_pair.add((obj1_label, obj2_label))
@@ -401,29 +401,40 @@ def useful_objects(threshold_image,output):
             print(f'points on line: {point_on_line_execution}, relevant point filtering: {relevant_execution}')
             break_ = False
             start_5 = time.time()
+            binary_map_temp_draw = cv2.cvtColor(binary_map_temp, cv2.COLOR_GRAY2BGR)
+            # map_draw = map.copy()
             for i, point_1 in enumerate(relavent_point_1):
-                for j, point_2 in enumerate(relavent_point_2):
-                    x1, y1 = point_1
-                    x2, y2 = point_2
-                    print(f'attempting to get points on line {point_1}{point_2}')
-                    point_on_line = get_line(x1, y1, x2, y2)
-                    print('done')
-                    print('getting status')
-                    status = check_points(threshold_image, point_on_line)
-                    print('done')
-                    if status:
-                        break_ = True
-                        useful_object_pair.append((obj1_label, obj2_label))
-                        break
-                if break_:
-                    break
+                cv2.circle(map, (int(point_1[0]), int(point_1[1])), 10, (0, 0, 255), -1)
+                cv2.circle(binary_map_temp_draw, (int(point_1[0]), int(point_1[1])), 10, (255, 255, 0), -1)
+            for j, point_2 in enumerate(relavent_point_2):
+                cv2.circle(map, (int(point_2[0]), int(point_2[1])), 10, (0, 0, 255), -1)
+                cv2.circle(binary_map_temp_draw, (int(point_2[0]), int(point_2[1])), 10, (255, 255, 0), -1)
+            cv2.imshow('binary temp',~binary_map_temp_draw)
+            cv2.imshow('map',map)
+            cv2.waitKey(0)
+            # for i, point_1 in enumerate(relavent_point_1):
+            #     for j, point_2 in enumerate(relavent_point_2):
+            #         x1, y1 = point_1
+            #         x2, y2 = point_2
+            #         print(f'attempting to get points on line {point_1}{point_2}')
+            #         point_on_line = get_line(x1, y1, x2, y2)
+            #         print('done')
+            #         print('getting status')
+            #         status = check_points(threshold_image, point_on_line)
+            #         print('done')
+            #         if status:
+            #             break_ = True
+            #             useful_object_pair.append((obj1_label, obj2_label))
+            #             break
+            #     if break_:
+            #         break
             relevant_freespace_execution = time.time()-start_5
             print(f'status checking: {relevant_freespace_execution}')
     return useful_object_pair
 
 # name = 'major_fail_case'
-name = 'environment_2'
-map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.png')
+name = 'usefulpair_case'
+map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
 # map_path = str(r'C:\Users\Asus\Desktop\results/' + name + '.jpg')
 map = cv2.imread(map_path)
 output,theshold_image = detect_and_label_0bstacles(map)

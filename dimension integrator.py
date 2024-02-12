@@ -95,11 +95,11 @@ def dimension_integrator(map,threshold,name):
                 # cv2.line(map, point1, point2, (255, 0, 255), thickness=1, lineType=8)
                 if sum(freespace_tester) == 0 and freespace_tester != []:
                     print('LINE PIXELS  = ', sum(freespace_tester))
-                    cv2.circle(map, point1, 5, colour, 2)
-                    cv2.circle(map, point2, 5, colour, 2)
-                    cv2.imshow('debug screen object boundary', map)
-                    cv2.imshow('debug screen object thresh', thresh)
-                    cv2.waitKey(0)
+                    # cv2.circle(map, point1, 5, colour, 2)
+                    # cv2.circle(map, point2, 5, colour, 2)
+                    # cv2.imshow('debug screen object boundary', map)
+                    # cv2.imshow('debug screen object thresh', thresh)
+                    # cv2.waitKey(0)
                     # cv2.circle(map, point1, 3, (127, 255, 127), 2)
                     # cv2.circle(map, point2, 3, (127, 255, 127), 2)
                     d = np.linalg.norm(point2 - point1)
@@ -228,8 +228,8 @@ def dimension_integrator(map,threshold,name):
     #             0.5, (255, 0, 255), 1, cv2.LINE_AA)
     return map_debug
 
-name ='convex_maps_4'
-map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/'+name+'.jpg')
+name ='simple_square'
+map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/'+name+'.png')
 map = cv2.imread(map_path)
 start = time.time()
 processed_map = dimension_integrator(map,20,name)

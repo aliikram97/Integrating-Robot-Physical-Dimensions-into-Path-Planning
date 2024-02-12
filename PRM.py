@@ -247,8 +247,8 @@ class PRM:
         # show image
         plt.axis('on')
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-        plt.savefig(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+constants.name+'_'+constants.map_type+'.PRM.png'))
-        # plt.show()
+        plt.savefig(str(r'C:\Users\Asus\Desktop\paper_specific_output\input/'+constants.name+'_'+constants.map_type+'.PRM.png'))
+        plt.show()
 
     def sample(self, n_pts=1000, sampling_method="uniform"):
         '''Construct a graph for PRM

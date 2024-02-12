@@ -46,7 +46,8 @@ if __name__ == "__main__":
     # path_to_orig = str(r'D:\Thesis\final results\selected-20231108T144248Z-001\selected\New folder/' + name + '.png')
     # path_to_orig = str(r'C:\Users\Asus\Desktop\real simulatrion\ue/' + name + '.png')
     # path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + constants.name + '.png')
-    path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline\processed_input/' + constants.name + '.png')
+    # path_to_orig = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline\processed_input/' + constants.name + '.png')
+    path_to_orig = str(r'C:\Users\Asus\Desktop\paper_specific_output\input/' + constants.name + '.png')
     print('the path is ',path_to_orig)
     map_array = load_map(path_to_orig, 0.3)
     #path_to_closed_path = str(r'E:\Theis\resutls_paper_custom_maps_new/' + name + '.bmp')
@@ -57,27 +58,27 @@ if __name__ == "__main__":
     RRT_planner = RRT(map_array, start, goal)
 
     # Search with PRM
-    # a = PRM_planner.sample(n_pts=1000, sampling_method="uniform")
-    # print('PRM_UNIFORM')
-    # PRM_planner.search(start, goal)
+    a = PRM_planner.sample(n_pts=1000, sampling_method="uniform")
+    print('PRM_UNIFORM')
+    PRM_planner.search(start, goal)
     # a = PRM_planner.sample(n_pts=1000, sampling_method="random")
     # print('PRM_RANDOM')
     # PRM_planner.search(start, goal)
     # a = PRM_planner.sample(n_pts=2000, sampling_method="gaussian")
     # print('PRM_GAUSSIAN')
     # PRM_planner.search(start, goal)
-
-    a = PRM_planner.sample(n_pts=20000, sampling_method="bridge")
-    start_time = time.time()
-    print('PRM_BRIDGE')
-    PRM_planner.search(start, goal)
-    end = time.time()
-    prm_exe = end - start_time
+    #
+    # a = PRM_planner.sample(n_pts=2000, sampling_method="bridge")
+    # start_time = time.time()
+    # print('PRM_BRIDGE')
+    # PRM_planner.search(start, goal)
+    # end = time.time()
+    # prm_exe = end - start_time
 
     # Search with RRT and RRT*
     start_rrt=time.time()
-    RRT_planner.RRT(n_pts=1000)
+    RRT_planner.RRT(n_pts=2000)
     end_rrt = time.time()
     rrt_exe = end_rrt-start_rrt
-    print(f'the PRM time: {prm_exe}, rrt time: {rrt_exe}')
-    # RRT_planner.RRT_star(n_pts=2000)
+    # print(f'the PRM time: {prm_exe}, rrt time: {rrt_exe}')
+    RRT_planner.RRT_star(n_pts=20000)

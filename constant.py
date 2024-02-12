@@ -1,6 +1,6 @@
 
 class constants:
-    start = (106, 40)
-    goal = (106, 94)
-    name = 'environment_4_visualization'
+    start = (70, 130)
+    goal = (40, 71)
+    name = 'NewYork_0_512'
     map_type = 'processed'

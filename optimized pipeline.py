@@ -383,7 +383,7 @@ def useful_objects(threshold_image,output):
             pair_checked = pair_exists(checked_pair, (obj1_label, obj2_label))
             pair_execution = time.time()-start_2
 
-            if pair_checked and len(useful_object_pair) > 1:
+            if pair_checked and len(useful_object_pair) >= 1:
                 continue
 
             checked_pair.add((obj1_label, obj2_label))
@@ -506,8 +506,8 @@ def useful_boundary_points_identifier(thresh,boundary_1,boundary_2,robot_width,v
                 point2 = np.array(point2)
                 passage_width = np.linalg.norm(point2 - point1)
                 if robot_width > passage_width:
-                    cv2.line(visualization, point1, point2, (0, 219, 0), thickness=3, lineType=8)
-                    cv2.line(thresh, point1, point2, (255, 255, 255), thickness=3, lineType=8)
+                    cv2.line(visualization, point1, point2, (0, 219, 0), thickness=5, lineType=8)
+                    cv2.line(thresh, point1, point2, (255, 255, 255), thickness=5, lineType=8)
                     stop_code = True
                     break
             inner_itterator+=10
@@ -565,7 +565,7 @@ def dimension_integrator(map):
     exe_1 = time.time()-start_1
     print(f'pairs identified')
     start_2 = time.time()
-    processed_result,draw_result = check_passages_by_near_pairs(11, thresh, near_pair, labels,map)
+    processed_result,draw_result = check_passages_by_near_pairs(20, thresh, near_pair, labels,map)
     # print(f'result generation with useful points')
     processed_binary_map = ~processed_result
     exe_2 = time.time() - start_2
@@ -575,9 +575,10 @@ def dimension_integrator(map):
     return processed_binary_map,draw_result
 def main():
     # name = 'map_5'
-    name = 'environment_5'
-    # map_path = str(r'C:\Users\Asus\Desktop\presentation waste\dd/' + name + '.jpg')
-    map_path = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
+    name = 'NewYork_0_512'
+    map_path = str(r'C:\Users\Asus\Desktop\paper_specific_output\input/' + name + '.png')
+    # map_path = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
+    # map_path = str(r'C:\Users\Asus\Downloads\experiment-20231227T191903Z-001\experiment\exp2/' + name + '.png')
     map = cv2.imread(map_path)
     map = cv2.resize(map, (250,250))
 
@@ -589,10 +590,12 @@ def main():
     print(end)
     cv2.imshow('input', map)
     cv2.imshow('final result',processed_binary_map)
-    cv2.imwrite(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+name+'_visualization.png'),processed_binary_map)
+    # cv2.imwrite(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+name+'_visualization.png'),processed_binary_map)
+    cv2.imwrite(str(r'C:\Users\Asus\Desktop\paper_specific_output\input\results/'+name+'_visualization.png'),processed_binary_map)
     cv2.imshow('final result visualization',result_visualization)
     cv2.imwrite(
-        str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/' + name + '_processed.png'),result_visualization)
+        # str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/' + name + '_processed.png'),result_visualization)
+        str(r'C:\Users\Asus\Desktop\paper_specific_output\input\results/' + name + '_processed.png'),result_visualization)
     cv2.waitKey(0)
 
 

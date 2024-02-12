@@ -35,10 +35,10 @@ def crop_video(input_file, output_file, start_time, end_time, fps):
 
 
 # Example usage:
-input_file = r'C:\Users\HomePC\Downloads\experiment-20231213T094822Z-001\experiment\exp2/live3.mp4'  # Replace with your input video file
-output_file = r'C:\Users\HomePC\Downloads\experiment-20231213T094822Z-001\experiment\exp2/sucess_experiment.mp4'  # Replace with the desired output file name
-start_time = 343  # Start time in seconds
-end_time = 429  # End time in seconds
+input_file = r'C:\Users\Asus\Downloads\experiment-20231227T191903Z-001\experiment\exp3/experiment_3.mp4'  # Replace with your input video file
+output_file = r'C:\Users\Asus\Downloads\experiment-20231227T191903Z-001\experiment\exp3/sucess_experiment_3.mp4'  # Replace with the desired output file name
+start_time = 113  # Start time in seconds
+end_time = 144  # End time in seconds
 fps = 20  # Desired frames per second
 
 crop_video(input_file, output_file, start_time, end_time, fps)

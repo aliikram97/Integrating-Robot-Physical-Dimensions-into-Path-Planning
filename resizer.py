@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os 
 
-path = r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline\processed_input/'
+path = r'C:\Users\Asus\Desktop\paper_specific_output\input\results/'
 dir_list = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 #print('files are ',dir_list)
 for item in dir_list:
@@ -22,7 +22,7 @@ for item in dir_list:
     # bigger = cv2.resize(image, (250, 250))
     bigger = cv2.resize(image, (500, 500))
 
-    cv2.imwrite(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline\processed_input/'+name+'.png'),bigger)
+    cv2.imwrite(str(r'C:\Users\Asus\Desktop\paper_specific_output\input\results/'+name+'.png'),bigger)
 
 
 

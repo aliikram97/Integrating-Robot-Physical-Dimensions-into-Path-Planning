@@ -211,9 +211,9 @@ class RRT:
         ax.imshow(img)
 
         # Draw Trees or Sample points
-        for node in self.vertices[1:-1]:
-            plt.plot(node.col, node.row, markersize=10, marker='o', color='b')
-            plt.plot([node.col, node.parent.col], [node.row, node.parent.row], color='b')
+        # for node in self.vertices[1:-1]:
+        #     plt.plot(node.col, node.row, markersize=10, marker='o', color='b')
+        #     plt.plot([node.col, node.parent.col], [node.row, node.parent.row], color='b')
         
         # Draw Final Path if found
         if self.found:
@@ -227,7 +227,7 @@ class RRT:
         plt.plot(self.start.col, self.start.row, markersize=20, marker='o', color='limegreen')
         plt.plot(self.goal.col, self.goal.row, markersize=20, marker='o', color='r')
         # show image
-        plt.savefig(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+constants.name+'_'+constants.map_type+'.RRT.png'))
+        plt.savefig(str(r'C:\Users\Asus\Desktop\paper_specific_output\input/'+constants.name+'_'+constants.map_type+'.RRT.png'))
         plt.show()
 
     def direction(self,point1,point2):                          
