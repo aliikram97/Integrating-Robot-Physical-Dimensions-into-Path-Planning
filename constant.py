@@ -1,4 +1,3 @@
-
 class constants:
     robot_width = 20 #enter the robot width in pixels
     name_BM = "convex_maps_1"
