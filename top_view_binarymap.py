@@ -64,7 +64,7 @@ while (cap.isOpened()):
         cv2.imshow('otsu+binary', thresh2)
         if cv2.waitKey(2) & 0xFF == ord('s'):
             print('save')
-            cv2.imwrite('/home/aliikram-99tech/Thesis_work/test/map_binary.bmp',thresh2)
+            cv2.imwrite('./map_binary.bmp',thresh2)
         frame_count+=1
 
         # Press Q on keyboard to exit
