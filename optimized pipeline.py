@@ -3,6 +3,7 @@ import numpy as np
 import time
 from sklearn.neighbors import BallTree
 
+import constant
 
 
 def cordinates_maker(contours):
@@ -84,38 +85,6 @@ def on_line(coord, cent1, cent2, tolerance=4):
 
     return abs(expected_y - y) <= tolerance
 
-# def relevant_points_extractor(map,points_collection,centroid,boundary_coordinates):
-#     candidate_points = []
-#     relevant_points = []
-#     temp=[]
-#     minimum_distance = 0
-#     ittr = 0
-#     for point in points_collection:
-#         candidate_point = [coord for coord in boundary_coordinates if on_line(coord, centroid, point)]
-#         candidate_points.append(candidate_point)
-#     for candidate in candidate_points:
-#         # print(candidate)
-#         ittr = 0
-#         minimum_distance = 0
-#         for point_candidate in candidate:
-#             distance = np.linalg.norm(centroid - point_candidate)
-#             if ittr==0:
-#                 minimum_distance=distance
-#                 temp = point_candidate
-#                 ittr+=1
-#             else:
-#                 if distance<=minimum_distance:
-#                     selected_point = point_candidate
-#                     ittr+=1
-#         if ittr == 1:
-#             selected_point = temp
-#         cv2.circle(map, (int(selected_point[0]), int(selected_point[1])), 8, (127, 127, 0), -1)
-#         # print(selected_point)
-#         #
-#         cv2.imshow('test', map)
-#         cv2.waitKey(0)
-#         relevant_points.append(selected_point)
-#     return relevant_points
 
 def get_line(x1, y1, x2, y2):
     """Bresenham's line algorithm to get all points between two coordinates"""
@@ -229,108 +198,6 @@ def detect_and_label_0bstacles(map):
 
     output = cv2.connectedComponentsWithStats(thresh, cv2.CV_32S)
     return output,thresh
-#
-# def identify_near_obstacle_pairs(thresh,numLabels,stats,centroids):
-#     dist_transform = cv2.distanceTransform(thresh, cv2.DIST_L2, 5)
-#     distances = []
-#     for i in range(1, numLabels):  # Start from 1 to exclude the background label 0
-#         for j in range(i + 1, numLabels):  # Compare current object with the rest
-#             dist = np.linalg.norm(centroids[i] - centroids[j])  # Euclidean distance between centroids
-#             distances.append(dist)
-#     # Calculate the average object size as a reference for the dynamic fraction
-#     average_size = np.mean(stats[1:, cv2.CC_STAT_AREA])  # Exclude background label 0, use area statistic
-#     print(average_size)
-#
-#     # Define a function to determine the dynamic fraction based on the average size
-#     def calculate_dynamic_fraction(avg_size):
-#         def convert_to_fraction(number):
-#             # Convert the number to a string and split it at the decimal point
-#             number_str = str(int(number))
-#             # Calculate the division factor based on the number of decimal places
-#             decimal_places = len(number_str)
-#             division_factor = 10 ** decimal_places
-#             # Convert the number to the desired fraction
-#             fraction = float(f"{number_str}") / division_factor
-#             return fraction
-#
-#         # You can define any function here based on your criteria
-#         # Here's a simple example using a linear relationship between average size and fraction
-#         fraction = convert_to_fraction(avg_size)
-#         print(fraction)
-#         # return 0.0001 * avg_size  # Adjust this relationship based on your specific scenario
-#         return fraction  # Adjust this relationship based on your specific scenario
-#     # Calculate the dynamic fraction using the average size
-#     dynamic_fraction = calculate_dynamic_fraction(average_size)
-#     print(f'the dynamic fraction is {dynamic_fraction}')
-#     # Calculate the dynamic threshold using the dynamic fraction
-#     dynamic_threshold = dynamic_fraction * np.mean(distances)  # Use np.mean or np.max based on your preference
-#     print(f'the distances are {distances}')
-#     print(dynamic_threshold)
-#     # Identify objects that are near each other based on the dynamic threshold
-#     near_objects = []
-#     far_objects = []
-#     for i in range(1, numLabels):  # Start from 1 to exclude the background label 0
-#         for j in range(i + 1, numLabels):  # Compare current object with the rest
-#             dist = np.linalg.norm(centroids[i] - centroids[j])  # Euclidean distance between centroids
-#             if dist < dynamic_threshold:
-#                 near_objects.append((i, j))
-#             else:
-#                 far_objects.append((i, j))
-#     print(near_objects)
-#
-#     return near_objects,far_objects
-
-# def near_objects_identifier(map,output):
-#     (numLabels, labels, stats, centroids) = output
-#     h, w = map.shape
-#
-#     # mean_area = np.mean(stats[1:, cv2.CC_STAT_AREA])  # Exclude background label
-#     #
-#     # # Normalize mean area between 0 and 1
-#     # normalized_area = (mean_area - np.min(stats[1:, cv2.CC_STAT_AREA])) / (
-#     #             np.max(stats[1:, cv2.CC_STAT_AREA]) - np.min(stats[1:, cv2.CC_STAT_AREA]))
-#
-#     # print(normalized_area)
-#     # diagonal points
-#     top_diag = (0, 0)
-#     bottom_diag = (abs(int((w - 1))), abs(int((h - 1))))
-#     diagonal_distance = np.linalg.norm(np.array(top_diag) - np.array(bottom_diag))
-#     threshold_distance = diagonal_distance * 0.4
-#     # threshold_distance = diagonal_distance * normalized_area
-#     # Loop through each unique object label
-#     near_objects = []
-#     for obj1_label in np.unique(labels):
-#         if obj1_label == 0:  # Skip the background label (if labeled as 0)
-#             continue
-#
-#         # Create a binary mask for obj1_label
-#         obstacle_1 = (labels == obj1_label).astype("uint8") * 255
-#         centroid_obj1 = centroids[obj1_label]
-#
-#         # Loop through other labels to compare distances
-#         for obj2_label in np.unique(labels):
-#             if obj2_label == 0 or obj2_label == obj1_label:
-#                 continue
-#
-#             # Create a binary mask for obj2_label
-#             obstacle_2 = (labels == obj2_label).astype("uint8") * 255
-#             centroid_obj2 = centroids[obj2_label]
-#
-#             # Combine binary masks
-#             binary_map_temp = obstacle_1 + obstacle_2
-#             cv2.circle(binary_map_temp, (int(centroid_obj1[0]), int(centroid_obj1[1])), 5, (127, 255, 0), -1)
-#             cv2.circle(binary_map_temp, (int(centroid_obj2[0]), int(centroid_obj2[1])), 5, (127, 255, 0), -1)
-#
-#             # dist_transform = cv2.distanceTransform(binary_map_temp, cv2.DIST_L2, 3)
-#             dist_between_objects = np.linalg.norm(centroid_obj1 - centroid_obj2)
-#
-#             # cv2.imshow('frame', binary_map_temp)
-#             # cv2.waitKey(0)
-#             # Compare distance with threshold
-#             if dist_between_objects < threshold_distance:
-#                 print(f"Objects {obj1_label} and {obj2_label} are near")
-#                 near_objects.append((obj1_label, obj2_label))
-#     return near_objects
 
 
 def useful_objects(threshold_image,output):
@@ -553,11 +420,9 @@ def check_passages_by_near_pairs(robot_width, thresh, near_pair, labels,draw_map
         thresh_cpy = thresh.copy()
 
         iterator_pair += 1
-    # cv2.imshow('test', thresh_cpy)
-    # cv2.waitKey(0)
     return thresh,processed_visualization
 
-def dimension_integrator(map):
+def dimension_integrator(map,robot_width):
     start_1 = time.time()
     output, thresh = detect_and_label_0bstacles(map)
     (numLabels, labels, stats, centroids) = output
@@ -565,8 +430,7 @@ def dimension_integrator(map):
     exe_1 = time.time()-start_1
     print(f'pairs identified')
     start_2 = time.time()
-    processed_result,draw_result = check_passages_by_near_pairs(20, thresh, near_pair, labels,map)
-    # print(f'result generation with useful points')
+    processed_result,draw_result = check_passages_by_near_pairs(robot_width, thresh, near_pair, labels,map)
     processed_binary_map = ~processed_result
     exe_2 = time.time() - start_2
 
@@ -574,28 +438,21 @@ def dimension_integrator(map):
     print(f'the number of objects in the map: {(numLabels-1)}')
     return processed_binary_map,draw_result
 def main():
-    # name = 'map_5'
-    name = 'NewYork_0_512'
-    map_path = str(r'C:\Users\Asus\Desktop\paper_specific_output\input/' + name + '.png')
-    # map_path = str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\selected_maps/' + name + '.png')
-    # map_path = str(r'C:\Users\Asus\Downloads\experiment-20231227T191903Z-001\experiment\exp2/' + name + '.png')
-    map = cv2.imread(map_path)
+    CONSTANTS=constant.constants()
+    map = cv2.imread(CONSTANTS.path_to_original_BM)
     map = cv2.resize(map, (250,250))
 
     start = time.time()
-    processed_binary_map,result_visualization = dimension_integrator(map)
+    processed_binary_map,result_visualization = dimension_integrator(map,CONSTANTS.robot_width)
     end = time.time() - start
     processed_binary_map = cv2.resize(processed_binary_map, (960,720))
     result_visualization = cv2.resize(result_visualization, (960,720))
     print(end)
     cv2.imshow('input', map)
     cv2.imshow('final result',processed_binary_map)
-    # cv2.imwrite(str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/'+name+'_visualization.png'),processed_binary_map)
-    cv2.imwrite(str(r'C:\Users\Asus\Desktop\paper_specific_output\input\results/'+name+'_visualization.png'),processed_binary_map)
     cv2.imshow('final result visualization',result_visualization)
-    cv2.imwrite(
-        # str(r'C:\Users\Asus\robot dimension integrator\Integrating-Robot-Physical-Dimensions-into-Path-Planning\results_elimination_pipleline/' + name + '_processed.png'),result_visualization)
-        str(r'C:\Users\Asus\Desktop\paper_specific_output\input\results/' + name + '_processed.png'),result_visualization)
+    cv2.imwrite(str(CONSTANTS.path_to_processed_BM+"_procesed.png"), processed_binary_map)
+    cv2.imwrite(str(CONSTANTS.path_to_processed_BM+"_visualization.png"),result_visualization)
     cv2.waitKey(0)
 
 
