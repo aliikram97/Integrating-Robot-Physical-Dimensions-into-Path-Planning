@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Create a VideoCapture object and read from input file
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 def BlackboxMaker(frame,r):
     image =frame
     start_point = (int(r[1]),int((r[1]+r[3])))

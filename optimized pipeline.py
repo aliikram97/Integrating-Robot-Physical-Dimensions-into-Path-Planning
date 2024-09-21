@@ -443,7 +443,7 @@ def main():
     map = cv2.resize(map, (250,250))
 
     start = time.time()
-    processed_binary_map,result_visualization = dimension_integrator(map,CONSTANTS.robot_width)
+    processed_binary_map,result_visualization = dimension_integrator(map, CONSTANTS.robot_width)
     end = time.time() - start
     processed_binary_map = cv2.resize(processed_binary_map, (960,720))
     result_visualization = cv2.resize(result_visualization, (960,720))
