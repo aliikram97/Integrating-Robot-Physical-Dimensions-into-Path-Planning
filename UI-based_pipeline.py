@@ -583,34 +583,34 @@ def process_video():
     cv2.destroyAllWindows()
 
 
-def calculate_robot_width_with_reference(reference_width):
-    # Function to capture or upload a reference image and calculate pixels per meter
-    def capture_reference_image():
-        cap = cv2.VideoCapture(0)
-        if cap.isOpened():
-            ret, frame = cap.read()
-            if ret:
-                r = cv2.selectROI("Select Reference Object", frame)
-                ref_width_pixels = r[2]  # Reference object width in pixels
-                pixels_per_meter = ref_width_pixels / reference_width
-                print(f"Pixels per meter: {pixels_per_meter}")
-                # Now calculate robot pixel width based on pixels_per_meter
-                cap.release()
-        cv2.destroyAllWindows()
-
-    def upload_reference_image():
-        file_path = filedialog.askopenfilename(title="Select Reference Image")
-        if file_path:
-            frame = cv2.imread(file_path)
-            r = cv2.selectROI("Select Reference Object", frame)
-            ref_width_pixels = r[2]  # Reference object width in pixels
-            pixels_per_meter = ref_width_pixels / reference_width
-            print(f"Pixels per meter: {pixels_per_meter}")
-            # Now calculate robot pixel width based on pixels_per_meter
-        cv2.destroyAllWindows()
-
-    # Capture or upload reference image based on user choice
-    return capture_reference_image, upload_reference_image
+# def calculate_robot_width_with_reference(reference_width):
+#     # Function to capture or upload a reference image and calculate pixels per meter
+#     def capture_reference_image():
+#         cap = cv2.VideoCapture(0)
+#         if cap.isOpened():
+#             ret, frame = cap.read()
+#             if ret:
+#                 r = cv2.selectROI("Select Reference Object", frame)
+#                 ref_width_pixels = r[2]  # Reference object width in pixels
+#                 pixels_per_meter = ref_width_pixels / reference_width
+#                 print(f"Pixels per meter: {pixels_per_meter}")
+#                 # Now calculate robot pixel width based on pixels_per_meter
+#                 cap.release()
+#         cv2.destroyAllWindows()
+#
+#     def upload_reference_image():
+#         file_path = filedialog.askopenfilename(title="Select Reference Image")
+#         if file_path:
+#             frame = cv2.imread(file_path)
+#             r = cv2.selectROI("Select Reference Object", frame)
+#             ref_width_pixels = r[2]  # Reference object width in pixels
+#             pixels_per_meter = ref_width_pixels / reference_width
+#             print(f"Pixels per meter: {pixels_per_meter}")
+#             # Now calculate robot pixel width based on pixels_per_meter
+#         cv2.destroyAllWindows()
+#
+#     # Capture or upload reference image based on user choice
+#     return capture_reference_image, upload_reference_image
 
 
 # def upload_map(map_type):
@@ -620,6 +620,196 @@ def calculate_robot_width_with_reference(reference_width):
 #     if map_file_path:
 #         print(f"Selected map: {map_file_path}")
 
+# def calculate_robot_width_with_reference(reference_width, capture_option_value):
+#     # Function to capture a reference image using a webcam
+#     def capture_reference_image():
+#         cap = cv2.VideoCapture(0)
+#         if cap.isOpened():
+#             ret, frame = cap.read()
+#             if ret:
+#                 r = cv2.selectROI("Select Reference Object", frame)
+#                 ref_width_pixels = r[2]  # Reference object width in pixels
+#                 pixels_per_meter = ref_width_pixels / reference_width
+#                 print(f"Pixels per meter: {pixels_per_meter}")
+#                 cap.release()
+#         cv2.destroyAllWindows()
+#
+#     # Function to upload a reference image from a file
+#     def upload_reference_image():
+#         file_path = filedialog.askopenfilename(title="Select Reference Image")
+#         if file_path:
+#             frame = cv2.imread(file_path)
+#             r = cv2.selectROI("Select Reference Object", frame)
+#             ref_width_pixels = r[2]  # Reference object width in pixels
+#             pixels_per_meter = ref_width_pixels / reference_width
+#             print(f"Pixels per meter: {pixels_per_meter}")
+#         cv2.destroyAllWindows()
+#
+#     # Determine whether to capture or upload the image based on the user's selection
+#     if capture_option_value == "Capture":
+#         capture_reference_image()
+#     elif capture_option_value == "Upload":
+#         upload_reference_image()
+#
+# def main():
+#     root = tk.Tk()
+#     root.title("Map Selection UI")
+#     root.geometry("400x300")
+#     root.resizable(True, True)  # Make the window resizable
+#
+#     # Set the dark mode theme
+#     style = ttk.Style(root)
+#     root.tk_setPalette(background="#2e2e2e", foreground="#ffffff", activeBackground="#4e4e4e", activeForeground="#ffffff")
+#
+#     # Configure ttk style for the dark theme
+#     style.configure("TNotebook", background="#2e2e2e", borderwidth=0)
+#     style.configure("TFrame", background="#2e2e2e")
+#     style.configure("TLabel", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
+#     style.configure("TRadiobutton", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
+#     style.configure("BlackText.TButton", background="#ffffff", foreground="#000000", font=("Arial", 12))
+#
+#     # Label for map type selection
+#     map_type_label = ttk.Label(root, text="Select Map Type:")
+#     map_type_label.pack(pady=10)
+#
+#     # Radio buttons for selecting map type
+#     map_type = tk.StringVar(value="2D Binary Map")
+#     ttk.Radiobutton(root, text="2D Binary Map", variable=map_type, value="2D Binary Map", style="TRadiobutton").pack(anchor="center", padx=20)
+#     ttk.Radiobutton(root, text="Occupancy Grid", variable=map_type, value="Occupancy Grid", style="TRadiobutton").pack(anchor="center", padx=20)
+#
+#     # Create the notebook (tabs)
+#     notebook = ttk.Notebook(root, style="TNotebook")
+#     notebook.pack(expand=True, fill='both')
+#
+#     # Tab for getting robot width in pixels
+#     get_width_tab = ttk.Frame(notebook)
+#     notebook.add(get_width_tab, text="Get Robot Width")
+#
+#     # Button to get robot width in pixels
+#     get_width_button = ttk.Button(get_width_tab, text="Get Robot Width in Pixels", command=lambda: process_video(), style="BlackText.TButton")
+#     get_width_button.pack(pady=10)
+#
+#     # Tab for calculating robot width in meters
+#     calculate_width_tab = ttk.Frame(notebook)
+#     notebook.add(calculate_width_tab, text="Calculate Robot Width")
+#
+#     # Label for robot width input
+#     width_label = ttk.Label(calculate_width_tab, text="Enter Real Robot Width (in meters):")
+#     width_label.pack(pady=10)
+#
+#     # Entry for user to input robot width
+#     global robot_width_entry
+#     robot_width_entry = ttk.Entry(calculate_width_tab)
+#     robot_width_entry.pack(pady=5)
+#
+#     # Labels and entries for reference object
+#     ref_object_label = ttk.Label(calculate_width_tab, text="Reference Object Width (in meters):")
+#     ref_object_label.pack(pady=10)
+#
+#     ref_object_entry = ttk.Entry(calculate_width_tab)
+#     ref_object_entry.pack(pady=5)
+#
+#     # Radio buttons for image capture options
+#     capture_option = tk.StringVar(value="Capture")
+#     ttk.Radiobutton(calculate_width_tab, text="Capture Reference Image", variable=capture_option, value="Capture").pack(anchor="center", padx=20)
+#     ttk.Radiobutton(calculate_width_tab, text="Upload Reference Image", variable=capture_option, value="Upload").pack(anchor="center", padx=20)
+#
+#     # Button to process the reference image
+#     process_ref_button = ttk.Button(calculate_width_tab, text="Process Reference Image", command=lambda: calculate_robot_width_with_reference(capture_option.get()), style="BlackText.TButton")
+#     process_ref_button.pack(pady=10)
+#
+#     # Upload button for map
+#     upload_button = ttk.Button(root, text="Upload & Process Map", command=lambda: upload_map(map_type.get()), style="BlackText.TButton")
+#     upload_button.pack(pady=20)
+#
+#     # Start the GUI loop
+#     root.mainloop()
+#
+#
+# if __name__ == "__main__":
+#     main()
+#
+# def main():
+#     root = tk.Tk()
+#     root.title("Map Selection UI")
+#     root.geometry("400x300")
+#
+#     # Set the dark mode theme
+#     style = ttk.Style(root)
+#     root.tk_setPalette(background="#2e2e2e", foreground="#ffffff", activeBackground="#4e4e4e",
+#                        activeForeground="#ffffff")
+#
+#     # Configure ttk style for the dark theme
+#     style.configure("TLabel", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
+#     style.configure("TRadiobutton", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
+#
+#     # Configure buttons to have black text
+#     style.configure("BlackText.TButton", background="#4e4e4e", foreground="#000000", font=("Arial", 12))
+#     style.map("BlackText.TButton", background=[('active', '#666666')])
+#
+#     # Label for map type selection
+#     label = ttk.Label(root, text="Select Map Type:")
+#     label.pack(pady=10)
+#
+#     # Radio buttons for selecting map type
+#     map_type = tk.StringVar(value="2D Binary Map")
+#     ttk.Radiobutton(root, text="2D Binary Map", variable=map_type, value="2D Binary Map").pack(anchor="center", padx=20)
+#     ttk.Radiobutton(root, text="Occupancy Grid", variable=map_type, value="Occupancy Grid").pack(anchor="center",
+#                                                                                                  padx=20)
+#
+#     # Label for robot width input
+#     width_label = ttk.Label(root, text="Enter Real Robot Width (in meters):", foreground="#000000")
+#     width_label.pack(pady=10)
+#
+#     # Entry for user to input robot width
+#     global robot_width_entry
+#     robot_width_entry = ttk.Entry(root, style="TEntry")
+#     robot_width_entry.pack(pady=5)
+#
+#     # Button to get robot width in pixels
+#     get_width_button = ttk.Button(root, text="Get Robot Width in Pixels", style="BlackText.TButton",
+#                                   command=lambda: process_video(float(robot_width_entry.get())))
+#     get_width_button.pack(pady=10)
+#
+#     # Upload button with black text
+#     upload_button = ttk.Button(root, text="Upload & Process Map", style="BlackText.TButton",
+#                                command=lambda: upload_map(map_type.get()))
+#     upload_button.pack(pady=20)
+#
+#     # Start the GUI loop
+#     root.mainloop()
+
+def calculate_robot_width_with_reference(reference_width, capture_option_value):
+    # Function to capture a reference image using a webcam
+    def capture_reference_image():
+        cap = cv2.VideoCapture(0)
+        if cap.isOpened():
+            ret, frame = cap.read()
+            if ret:
+                r = cv2.selectROI("Select Reference Object", frame)
+                CONSTANTS.robot_width = r[2]  # Reference object width in pixels
+                # pixels_per_meter = ref_width_pixels / reference_width
+                print(f"Pixels width of robot: {CONSTANTS.robot_width}")
+                cap.release()
+        cv2.destroyAllWindows()
+
+    # Function to upload a reference image from a file
+    def upload_reference_image():
+        file_path = filedialog.askopenfilename(title="Select Reference Image")
+        if file_path:
+            frame = cv2.imread(file_path)
+            r = cv2.selectROI("Select Reference Object", frame)
+            CONSTANTS.robot_width = r[2]  # Reference object width in pixels
+            # pixels_per_meter = ref_width_pixels / reference_width
+
+            print(f"Pixels width of robot: {CONSTANTS.robot_width}")
+        cv2.destroyAllWindows()
+
+    # Determine whether to capture or upload the image based on the user's selection
+    if capture_option_value == "Capture":
+        capture_reference_image()
+    elif capture_option_value == "Upload":
+        upload_reference_image()
 
 def main():
     root = tk.Tk()
@@ -685,7 +875,15 @@ def main():
     ttk.Radiobutton(calculate_width_tab, text="Upload Reference Image", variable=capture_option, value="Upload").pack(anchor="center", padx=20)
 
     # Button to process the reference image
-    process_ref_button = ttk.Button(calculate_width_tab, text="Process Reference Image", command=lambda: process_reference_image(capture_option.get()), style="BlackText.TButton")
+    def process_reference_image():
+        try:
+            reference_width = float(ref_object_entry.get())  # Get the reference width entered by the user
+            capture_option_value = capture_option.get()  # Get the selected option (Capture or Upload)
+            calculate_robot_width_with_reference(reference_width, capture_option_value)  # Pass both the reference width and capture option to the function
+        except ValueError:
+            print("Please enter a valid number for the reference width")
+
+    process_ref_button = ttk.Button(calculate_width_tab, text="Process Reference Image", command=process_reference_image, style="BlackText.TButton")
     process_ref_button.pack(pady=10)
 
     # Upload button for map
@@ -695,61 +893,8 @@ def main():
     # Start the GUI loop
     root.mainloop()
 
-
 if __name__ == "__main__":
     main()
-#
-# def main():
-#     root = tk.Tk()
-#     root.title("Map Selection UI")
-#     root.geometry("400x300")
-#
-#     # Set the dark mode theme
-#     style = ttk.Style(root)
-#     root.tk_setPalette(background="#2e2e2e", foreground="#ffffff", activeBackground="#4e4e4e",
-#                        activeForeground="#ffffff")
-#
-#     # Configure ttk style for the dark theme
-#     style.configure("TLabel", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
-#     style.configure("TRadiobutton", background="#2e2e2e", foreground="#ffffff", font=("Arial", 12))
-#
-#     # Configure buttons to have black text
-#     style.configure("BlackText.TButton", background="#4e4e4e", foreground="#000000", font=("Arial", 12))
-#     style.map("BlackText.TButton", background=[('active', '#666666')])
-#
-#     # Label for map type selection
-#     label = ttk.Label(root, text="Select Map Type:")
-#     label.pack(pady=10)
-#
-#     # Radio buttons for selecting map type
-#     map_type = tk.StringVar(value="2D Binary Map")
-#     ttk.Radiobutton(root, text="2D Binary Map", variable=map_type, value="2D Binary Map").pack(anchor="center", padx=20)
-#     ttk.Radiobutton(root, text="Occupancy Grid", variable=map_type, value="Occupancy Grid").pack(anchor="center",
-#                                                                                                  padx=20)
-#
-#     # Label for robot width input
-#     width_label = ttk.Label(root, text="Enter Real Robot Width (in meters):", foreground="#000000")
-#     width_label.pack(pady=10)
-#
-#     # Entry for user to input robot width
-#     global robot_width_entry
-#     robot_width_entry = ttk.Entry(root, style="TEntry")
-#     robot_width_entry.pack(pady=5)
-#
-#     # Button to get robot width in pixels
-#     get_width_button = ttk.Button(root, text="Get Robot Width in Pixels", style="BlackText.TButton",
-#                                   command=lambda: process_video(float(robot_width_entry.get())))
-#     get_width_button.pack(pady=10)
-#
-#     # Upload button with black text
-#     upload_button = ttk.Button(root, text="Upload & Process Map", style="BlackText.TButton",
-#                                command=lambda: upload_map(map_type.get()))
-#     upload_button.pack(pady=20)
-#
-#     # Start the GUI loop
-#     root.mainloop()
-
-
 
 
 # def main():
