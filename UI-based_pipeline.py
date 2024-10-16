@@ -546,7 +546,7 @@ def dimension_integrator(map,robot_width):
 
 def upload_map(map_type):
     map_path = filedialog.askopenfilename(title="Select a Map",
-                                          filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp")])
+                                          filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp;*.jfif")])
     if map_path:
         # CONSTANTS = constant.constants()
         print(f'the value which is of robot width is in pixels: {CONSTANTS.robot_width}')
